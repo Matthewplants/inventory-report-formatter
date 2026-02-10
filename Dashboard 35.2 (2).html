@@ -87,6 +87,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -115,6 +116,11 @@
             background: #00CCFF;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s ease;
+        }
+        .dark body,
+        html.dark body {
+            background: #1a1a2e;
         }
         .access-button {
             background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
@@ -493,6 +499,127 @@
         /* Hide print-only elements on screen */
         .print-only-header {
             display: none;
+        }
+
+        /* Dark Mode Overrides */
+        html.dark .bg-white {
+            background-color: #1e1e32 !important;
+            color: #e0e0e0;
+        }
+        html.dark .bg-white .text-gray-800,
+        html.dark .bg-white .text-gray-700,
+        html.dark .bg-white .text-gray-600 {
+            color: #c0c0c0 !important;
+        }
+        html.dark .bg-white .text-gray-500,
+        html.dark .bg-white .text-gray-400 {
+            color: #999 !important;
+        }
+        html.dark .bg-white .border-gray-300,
+        html.dark .bg-white .border-gray-200 {
+            border-color: #444 !important;
+        }
+        html.dark .bg-gray-50,
+        html.dark .bg-gray-100 {
+            background-color: #252540 !important;
+        }
+        html.dark .bg-yellow-50 {
+            background-color: #2a2a1e !important;
+        }
+        html.dark .bg-green-50 {
+            background-color: #1e2a1e !important;
+        }
+        html.dark .bg-blue-50 {
+            background-color: #1e1e2a !important;
+        }
+        html.dark .bg-purple-50 {
+            background-color: #2a1e2a !important;
+        }
+        html.dark table th {
+            background-color: #2a2a3e !important;
+            color: #e0e0e0 !important;
+            border-color: #444 !important;
+        }
+        html.dark table td {
+            color: #d0d0d0 !important;
+            border-color: #3a3a4e !important;
+        }
+        html.dark table tr:hover td {
+            background-color: #2a2a3e !important;
+        }
+        html.dark input, html.dark select, html.dark textarea {
+            background-color: #2a2a3e !important;
+            color: #e0e0e0 !important;
+            border-color: #555 !important;
+        }
+        html.dark .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3) !important;
+        }
+        .dark body {
+            background: #1a1a2e;
+        }
+        .dark .access-header {
+            background: linear-gradient(180deg, #2a2a3e 0%, #1e1e32 100%);
+            border-bottom: 2px solid #444;
+            color: #e0e0e0;
+        }
+        .dark .access-button {
+            background: linear-gradient(180deg, #3a3a4e 0%, #2a2a3e 100%);
+            border: 1px solid #555;
+            color: #e0e0e0;
+        }
+        .dark .access-button:hover {
+            background: linear-gradient(180deg, #444458 0%, #3a3a4e 100%);
+        }
+        .dark .letter-button {
+            background: linear-gradient(180deg, #3a3a4e 0%, #2a2a3e 100%);
+            border: 1px solid #555;
+            color: #e0e0e0;
+        }
+        .dark .letter-button:hover {
+            background: linear-gradient(180deg, #444458 0%, #3a3a4e 100%);
+        }
+        .dark .letter-button.active {
+            background: linear-gradient(180deg, #2E7D32 0%, #1B5E20 100%);
+            color: white;
+            border-color: #1B5E20;
+        }
+        .dark .table-scroll-wrapper::-webkit-scrollbar-track {
+            background: #2a2a3e;
+        }
+        .dark .sticky-scroll-container {
+            background: #1e1e32;
+            border-top: 2px solid #444;
+        }
+        /* Dark mode toggle switch */
+        .dark-mode-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            border-radius: 12px;
+            background: #ccc;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            padding: 0;
+        }
+        .dark-mode-toggle.active {
+            background: #4CAF50;
+        }
+        .dark-mode-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .dark-mode-toggle.active::after {
+            transform: translateX(24px);
         }
     </style>
 </head>
@@ -1461,7 +1588,32 @@
             const [forecastBaseYears, setForecastBaseYears] = useState(3);
             const [forecastYearsToShow, setForecastYearsToShow] = useState(1);
             const [includeCurrentYearForecast, setIncludeCurrentYearForecast] = useState(false);
-            
+            const [darkMode, setDarkMode] = useState(() => {
+                try { return localStorage.getItem('dashboardDarkMode') === 'true'; } catch(e) { return false; }
+            });
+
+            const toggleDarkMode = () => {
+                setDarkMode(prev => {
+                    const next = !prev;
+                    try { localStorage.setItem('dashboardDarkMode', String(next)); } catch(e) {}
+                    if (next) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                    return next;
+                });
+            };
+
+            // Apply dark mode class on mount
+            React.useEffect(() => {
+                if (darkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, []);
+
             // Chunk buffer for large CSV files (Line Items)
             const [chunkBuffer, setChunkBuffer] = useState({
                 header: '',
@@ -9129,15 +9281,23 @@ Please provide a clear, actionable answer. If showing lists of products, format 
             };
 
             return (
-                <div className="min-h-screen p-4">
+                <div className={`min-h-screen p-4 ${darkMode ? 'dark:bg-gray-900' : ''}`} style={darkMode ? {background: '#1a1a2e'} : {}}>
                     <div className={showProductionPlanning || showLineItemReport || showPhotoComposite ? "mx-auto" : "max-w-7xl mx-auto"}>
-                        <div className="access-header no-print mb-6">
+                        <div className="access-header no-print mb-6" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
                             May Nursery Dashboard
+                            <div style={{position: 'absolute', right: '16px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <span style={{fontSize: '14px', fontWeight: 'normal'}}>{darkMode ? 'Light' : 'Dark'}</span>
+                                <button
+                                    onClick={toggleDarkMode}
+                                    className={`dark-mode-toggle ${darkMode ? 'active' : ''}`}
+                                    title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                                />
+                            </div>
                         </div>
 
-                        <div className="shadow-lg p-6 mb-6 no-print" style={{background: '#00CCFF'}}>
+                        <div className="shadow-lg p-6 mb-6 no-print" style={{background: darkMode ? '#1e293b' : '#00CCFF'}}>
                             <div className="mb-4 flex gap-3">
-                                <button 
+                                <button
                                     onClick={() => setShowInstructions(!showInstructions)}
                                     className="inline-flex items-center gap-2 px-6 py-3 access-button transition text-gray-800 font-semibold"
                                 >
@@ -9295,9 +9455,9 @@ Please provide a clear, actionable answer. If showing lists of products, format 
                             )}
                             
                             {showCode && (
-                                <div className="bg-white p-6 rounded-lg border-2 border-gray-300">
+                                <div className={`p-6 rounded-lg border-2 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'}`}>
                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-xl font-bold text-gray-800">Dashboard Source Code</h3>
+                                        <h3 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Dashboard Source Code</h3>
                                         <button
                                             onClick={() => {
                                                 const code = document.documentElement.outerHTML;
@@ -9842,8 +10002,8 @@ Please provide a clear, actionable answer. If showing lists of products, format 
                         </div>
 
                         {Object.keys(groupedData).length > 0 && !showSizeSummary && !showReservedReport && !showCustomerPriceReport && !showOverdueOrders && !showCustomerSales && !showCustomerSoldYTD && !showShiftsReport && !showGroupByRep && !showMissingRep && !showProductionPlanning && !showPhotosSpecsReport && !showLineItemReport && !showPhotoComposite && !showMovementsReport && !showRepProductBreakdown && !showSupplyDemandReport && (
-                            <div className="shadow-lg p-6 mb-6 no-print" style={{background: '#00CCFF'}}>
-                                <h3 className="text-lg font-bold mb-4" style={{color: '#333'}}>Filter by Plant Name</h3>
+                            <div className="shadow-lg p-6 mb-6 no-print" style={{background: darkMode ? '#1e293b' : '#00CCFF'}}>
+                                <h3 className="text-lg font-bold mb-4" style={{color: darkMode ? '#e0e0e0' : '#333'}}>Filter by Plant Name</h3>
                                 
                                 <div className="mb-4">
                                     <div className="relative">
@@ -16932,11 +17092,11 @@ Please provide a clear, actionable answer. If showing lists of products, format 
                                                                 .sort((a, b) => a.productVariant.localeCompare(b.productVariant));
                                                             
                                                             return (
-                                                                <div key={idx} className="mb-6 border-2 border-gray-300 rounded">
-                                                                    <div className="p-4 flex justify-between items-center" style={{background: '#00CCFF'}}>
+                                                                <div key={idx} className="mb-6 border-2 border-gray-300 rounded" style={darkMode ? {borderColor: '#444'} : {}}>
+                                                                    <div className="p-4 flex justify-between items-center" style={{background: darkMode ? '#1e293b' : '#00CCFF'}}>
                                                                         <div>
-                                                                            <h3 className="text-xl font-bold text-gray-800">{customerData.customerName}</h3>
-                                                                            <p className="text-sm text-gray-700">Total Net Qty: <strong>{customerData.totalNetQty.toLocaleString()}</strong> units</p>
+                                                                            <h3 className="text-xl font-bold" style={{color: darkMode ? '#e0e0e0' : '#333'}}>{customerData.customerName}</h3>
+                                                                            <p className="text-sm" style={{color: darkMode ? '#b0b0b0' : '#374151'}}>Total Net Qty: <strong>{customerData.totalNetQty.toLocaleString()}</strong> units</p>
                                                                         </div>
                                                                         <div className="flex gap-2">
                                                                             <button
@@ -17823,12 +17983,12 @@ Please provide a clear, actionable answer. If showing lists of products, format 
                             </div>
                         )}
                         {Object.keys(groupedData).length === 0 && data.length === 0 && (
-                            <div className="bg-white shadow-lg p-12 text-center">
-                                <div className="mx-auto mb-4 text-gray-400 flex justify-center">
+                            <div className={`shadow-lg p-12 text-center ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                                <div className={`mx-auto mb-4 flex justify-center ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                                     <Upload />
                                 </div>
-                                <p className="text-gray-600 text-lg">Upload a CSV file to get started</p>
-                                <p className="text-gray-500 text-sm mt-2">Expected columns: Product, Variant, Status, Qty, Locations, Ready date, Pull priorty, etc.</p>
+                                <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Upload a CSV file to get started</p>
+                                <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Expected columns: Product, Variant, Status, Qty, Locations, Ready date, Pull priorty, etc.</p>
                             </div>
                         )}
                     </div>
