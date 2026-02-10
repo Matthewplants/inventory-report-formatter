@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>May Nursery</title>
+</head>
+<body>
+    <h1>Welcome to May Nursery</h1>
+    <p>Wholesale plants in Havana, Florida</p>
+</body>
+</html>

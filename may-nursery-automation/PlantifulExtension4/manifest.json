@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Plantiful CSV Automator",
+  "version": "3.1",
+  "description": "Automates CSV downloads from Plantiful",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.tryplantiful.com/*",
+    "file:///*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.tryplantiful.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["file:///*"],
+      "js": ["dashboard-bridge.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
